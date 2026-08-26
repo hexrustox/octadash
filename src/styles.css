@@ -1,0 +1,87 @@
+:root {
+  --surface: #141a29;
+  --line: rgba(148, 163, 184, 0.14);
+  --radius: 0.9rem;
+  --muted: #8b93a7;
+}
+
+[data-bs-theme='dark'] {
+  --bs-body-bg: #0e1424;
+  --bs-body-color: #cdd3e2;
+  --bs-border-color: var(--line);
+  --bs-primary: #4f7cff;
+  --bs-link-color: #9ec1ff;
+  --bs-secondary-color: #93a0b8;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 460px at 50% -180px, rgba(79, 124, 255, 0.16), transparent 70%),
+    var(--bs-body-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+app-root {
+  display: contents;
+}
+
+main {
+  flex-grow: 1;
+}
+
+::selection {
+  background: rgba(79, 124, 255, 0.45);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 99px;
+  border: 2px solid var(--bs-body-bg);
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+.btn-accent {
+  --bs-btn-color: #fff;
+  color: #fff;
+  border: none;
+  background-image: linear-gradient(135deg, #4f7cff, #6ea8fe);
+  box-shadow: 0 6px 18px -6px rgba(79, 124, 255, 0.55);
+}
+
+.btn-accent:hover:not(:disabled) {
+  filter: brightness(1.08);
+  color: #fff;
+}
+
+.btn-accent:disabled {
+  opacity: 0.45;
+}
+
+.card {
+  background-color: var(--surface);
+}
+
+.form-control,
+.form-select {
+  background-color: rgba(10, 14, 24, 0.6);
+  border-color: var(--line);
+  color: #dbe4f5;
+}
+
+.form-control::placeholder,
+.form-select::placeholder { color: #5d6575; }
+
+.form-control:focus,
+.form-select:focus {
+  background-color: rgba(10, 14, 24, 0.75);
+  border-color: rgba(110, 168, 254, 0.55);
+  color: #eaf1ff;
+  box-shadow: 0 0 0 0.2rem rgba(79, 124, 255, 0.18);
+}

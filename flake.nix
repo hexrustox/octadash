@@ -13,11 +13,14 @@
       devShell = {
         socketPath = "/tmp/octadash/ncap-socket";
         containerName = "octadash";
+        image = "ubuntu:latest";
         extraOptions = [
           "-e"
           "PNPM_HOME"
           "-v"
           "$PNPM_HOME:$PNPM_HOME"
+          "-p"
+          "4200:4200"
         ];
         wrappers = [
           "npm"

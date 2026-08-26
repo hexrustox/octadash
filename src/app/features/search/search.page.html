@@ -1,0 +1,148 @@
+<section class="hero">
+  <div class="container-lg py-5 text-center">
+    <span class="eyebrow badge rounded-pill mb-3 px-3 py-2">
+      <i class="bi bi-broadcast me-1"></i> Live projections of GitHub
+    </span>
+    <h1 class="fw-bold mb-2">Find the repositories worth your time.</h1>
+    <p class="text-secondary mb-0">
+      Filter by language, star floor and license. Every search lives in the URL — refresh, share, revisit.
+    </p>
+  </div>
+</section>
+
+<div class="container-lg pb-5">
+
+  <form class="searchbar card p-2 p-sm-3" (ngSubmit)="apply()">
+    <div class="d-flex align-items-center gap-2 flex-nowrap">
+      <div class="position-relative flex-grow-1 min-w-0">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+        <input
+          type="text"
+          class="form-control has-leading-icon has-trailing-btn"
+          placeholder="Search repositories…"
+          aria-label="Search repositories"
+          [(ngModel)]="q"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        @if (q()) {
+          <button type="button" class="clear-text-btn" aria-label="Clear search text" (click)="clearText()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        }
+      </div>
+      <select class="form-select w-lang" aria-label="Language filter" [(ngModel)]="lang" [ngModelOptions]="{ standalone: true }">
+        <option [ngValue]="null">Any language</option>
+        @for (l of languages; track l) {
+          <option [value]="l">{{ l }}</option>
+        }
+      </select>
+      <input
+        type="number"
+        min="0"
+        class="form-control w-stars"
+        placeholder="★ Min stars"
+        aria-label="Minimum stars"
+        [(ngModel)]="stars"
+        [ngModelOptions]="{ standalone: true }"
+      />
+      <select class="form-select w-license" aria-label="License filter" [(ngModel)]="license" [ngModelOptions]="{ standalone: true }">
+        <option [ngValue]="null">Any license</option>
+        @for (lic of licenses; track lic) {
+          <option [value]="lic">{{ lic }}</option>
+        }
+      </select>
+      <select class="form-select w-sort" aria-label="Sort order" [(ngModel)]="sort" [ngModelOptions]="{ standalone: true }">
+        @for (s of sorts; track s.value) {
+          <option [value]="s.value">{{ s.label }}</option>
+        }
+      </select>
+      <button type="submit" class="btn btn-accent px-3 text-nowrap" [disabled]="!canSubmit()">
+        Search
+      </button>
+    </div>
+  </form>
+
+  <app-rate-limit-banner class="d-block mt-4" scope="search" />
+
+  @if (loadingFirst()) {
+    <div class="row g-3 mt-1">
+      @for (s of [1, 2, 3, 4, 5, 6]; track s) {
+        <div class="col-12 col-md-6">
+          <div class="card skeleton-card p-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="sk sk-circle"></div>
+              <div class="sk sk-line w-40"></div>
+            </div>
+            <div class="sk sk-line mb-2"></div>
+            <div class="sk sk-line w-70 mb-3"></div>
+            <div class="sk sk-line w-25"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (repos().length) {
+    <p class="feed-summary small text-secondary mt-4 mb-3">
+      Showing {{ repos().length }} of ~{{ compact(totalCount() ?? repos().length) }} repositories
+    </p>
+
+    <div class="row g-3">
+      @for (r of repos(); track r.id) {
+        <div class="col-12 col-md-6">
+          <app-repo-card [repo]="r" (topicSearch)="quickTopic($event)" />
+        </div>
+      }
+    </div>
+
+    @if (loadingMore()) {
+      <div class="text-center my-5 text-secondary">
+        <span class="spinner-border spinner-border-sm me-2"></span>Fetching more repositories…
+      </div>
+    }
+
+    <div #sentinel class="sentinel"></div>
+
+    @if (reachedEnd()) {
+      <p class="text-center text-secondary small my-4">
+        <i class="bi bi-flag me-1"></i> End of the feed.
+      </p>
+    }
+  } @else if (failure()) {
+    @switch (failure()) {
+      @case ('quota') {
+        <app-state-screen variant="quota" heading="Out of search quota" [showTokenHint]="true" (retry)="retry()" />
+      }
+      @case ('offline') {
+        <app-state-screen
+          variant="offline"
+          heading="GitHub is unreachable"
+          detail="octadash talks to api.github.com straight from your browser — check your connection."
+        />
+      }
+      @default {
+        <app-state-screen
+          variant="generic"
+          heading="Search failed"
+          [detail]="failureDetail()"
+        />
+      }
+    }
+  } @else {
+    <div class="idle-panel text-center mt-5 py-5 px-3">
+      <div class="glyph mx-auto d-flex align-items-center justify-content-center mb-4">
+        <i class="bi bi-stars fs-2"></i>
+      </div>
+      <h2 class="h4">Start exploring.</h2>
+      <p class="text-secondary mx-auto mb-4" style="max-width: 34rem;">
+        Type any text above, or jump straight into one of these curated searches.
+      </p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        @for (entry of quickStarts; track entry.label) {
+          <button type="button" class="btn quick-chip" (click)="quickRun(entry)">
+            <i class="bi bi-lightning-charge me-1"></i>{{ entry.label }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+</div>

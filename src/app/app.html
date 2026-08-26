@@ -1,0 +1,70 @@
+<nav class="navbar app-navbar sticky-top border-bottom">
+  <div class="container-lg">
+    <a class="navbar-brand d-flex align-items-center gap-2" routerLink="/">
+      <i class="bi bi-columns-gap brand-glyph"></i>
+      <span class="fw-bold">octa<span class="brand-accent">dash</span></span>
+    </a>
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <span
+        class="badge token-badge rounded-pill"
+        [title]="tokens.hasToken() ? 'Requests count against your token: 5,000/hour' : 'Anonymous requests: ~60 core/hour, ~10 searches/minute'"
+      >
+        @if (tokens.hasToken()) {
+          <i class="bi bi-shield-check me-1"></i>Token active
+        } @else {
+          <i class="bi bi-incognito me-1"></i>Anonymous limits
+        }
+      </span>
+
+      <div ngbDropdown placement="bottom-end" display="dynamic">
+        <button type="button" class="btn btn-outline-secondary btn-sm" ngbDropdownToggle>
+          <i class="bi bi-key me-1"></i>Access token
+        </button>
+        <div ngbDropdownMenu class="pat-menu">
+          <p class="small text-secondary mb-2" style="max-width: 18rem;">
+            Paste a GitHub personal access token to lift rate limits to 5,000 requests/hour.
+            It is stored only in your browser and sent nowhere except github.com.
+          </p>
+          <input
+            type="password"
+            class="form-control form-control-sm mb-2"
+            placeholder="ghp_… or github_pat_…"
+            aria-label="GitHub personal access token"
+            autocomplete="off"
+            spellcheck="false"
+            [(ngModel)]="draft"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          @if (tokens.hasToken()) {
+            <p class="small text-success mb-2"><i class="bi bi-check-circle me-1"></i>A token is stored locally.</p>
+          }
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-accent btn-sm flex-grow-1" [disabled]="!draft()" (click)="save()">
+              Save
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              [disabled]="!tokens.hasToken()"
+              (click)="clearDraft()"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="border-top mt-5">
+  <div class="container-lg py-4 small text-secondary d-flex flex-wrap gap-2 justify-content-between">
+    <span><i class="bi bi-columns-gap me-1"></i> octadash — a read-only window onto GitHub.</span>
+    <span>Owns no data of its own · live projections only</span>
+  </div>
+</footer>

@@ -1,0 +1,265 @@
+<div class="container-lg py-4">
+
+  @if (fatal()) {
+    @switch (fatal()) {
+      @case ('not-found') {
+        <app-state-screen
+          variant="not-found"
+          heading="Repository not found"
+          detail="GitHub has no repo at this owner/name — double-check the spelling."
+        />
+      }
+      @case ('invalid') {
+        <app-state-screen
+          variant="invalid"
+          heading="That doesn't look like a repository URL"
+          detail="Dashboards are addressed as /repo/owner/name."
+        />
+      }
+      @case ('quota') {
+        <app-state-screen variant="quota" heading="GitHub API quota reached" quotaScope="core" [showTokenHint]="true" (retry)="retry()" />
+      }
+      @case ('offline') {
+        <app-state-screen
+          variant="offline"
+          heading="GitHub is unreachable"
+          detail="octadash talks to api.github.com straight from your browser — check your connection."
+        />
+      }
+      @default {
+        <app-state-screen variant="generic" heading="Dashboard failed to load" [detail]="fatalDetail()" />
+      }
+    }
+  } @else {
+
+    <a routerLink="/" class="back-link small text-decoration-none d-inline-flex align-items-center gap-1 mb-3">
+      <i class="bi bi-arrow-left"></i> Back to Search
+    </a>
+
+    @if (!repo()) {
+      <div class="text-center text-secondary py-5 my-5">
+        <span class="spinner-border me-2"></span>Loading dashboard…
+      </div>
+    }
+
+    @if (repo(); as r) {
+
+      <header class="card panel p-4 mb-4">
+        <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center">
+          <img [src]="r.owner.avatar_url" alt="" width="72" height="72" class="rounded-3 border" loading="lazy" />
+          <div class="flex-grow-1 min-w-0">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+              <h1 class="h3 mb-0 fw-bold">
+                <a class="name-link" [href]="r.html_url" target="_blank" rel="noopener">{{ r.full_name }}</a>
+              </h1>
+              @if (r.fork) {
+                <span class="badge soft-badge"><i class="bi bi-diagram-2 me-1"></i>fork</span>
+              }
+            </div>
+
+            @if (r.description) {
+              <p class="text-secondary mb-2 mt-1">{{ r.description }}</p>
+            }
+
+            <div class="d-flex flex-wrap align-items-center gap-3 small text-secondary">
+              @if (r.language) {
+                <span><span class="lang-dot align-middle" [style.background]="langColor(r.language)"></span> {{ r.language }}</span>
+              }
+              <span title="License"><i class="bi bi-award me-1"></i>{{ r.license?.spdx_id || 'No license' }}</span>
+              <span title="Last push"><i class="bi bi-clock-history me-1"></i>pushed {{ compactTimeAgo(r.pushed_at) }}</span>
+              @if (r.homepage) {
+                <a [href]="r.homepage" target="_blank" rel="noopener" class="accent-link"><i class="bi bi-link-45deg"></i>{{ displayHomepage(r.homepage) }}</a>
+              }
+            </div>
+
+            @if ((r.topics ?? []).length) {
+              <div class="d-flex flex-wrap gap-1 mt-3">
+                @for (t of r.topics!.slice(0, 8); track t) {
+                  <a class="topic-chip" [routerLink]="['/']" [queryParams]="{ q: t }">#{{ t }}</a>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="d-flex flex-md-column gap-2 flex-shrink-0">
+            <a class="btn btn-accent btn-sm" [href]="r.html_url" target="_blank" rel="noopener">
+              <i class="bi bi-github me-1"></i> View on GitHub
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="row g-3 mb-4 snapshot-row">
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card panel snapshot h-100">
+            <i class="bi bi-star-fill snap-icon text-warm"></i>
+            <div class="snap-value">{{ r.stargazers_count.toLocaleString('en-US') }}</div>
+            <div class="snap-label">Stars</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card panel snapshot h-100">
+            <i class="bi bi-eye-fill snap-icon text-cool"></i>
+            <div class="snap-value">{{ (r.subscribers_count ?? 0).toLocaleString('en-US') }}</div>
+            <div class="snap-label">Watchers</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card panel snapshot h-100">
+            <i class="bi bi-diagram-2-fill snap-icon text-teal"></i>
+            <div class="snap-value">{{ r.forks_count.toLocaleString('en-US') }}</div>
+            <div class="snap-label">Forks</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card panel snapshot h-100">
+            <i class="bi bi-record-circle-fill snap-icon text-rose"></i>
+            <div class="snap-value">{{ r.open_issues_count.toLocaleString('en-US') }}</div>
+            <div class="snap-label">Open issues</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card panel snapshot h-100">
+            <i class="bi bi-award snap-icon text-violet"></i>
+            <div class="snap-value snap-text">{{ r.license?.spdx_id || 'None' }}</div>
+            <div class="snap-label">License</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card panel snapshot h-100">
+            <i class="bi bi-tag-fill snap-icon text-gold"></i>
+            <div class="snap-value snap-text">
+              @if (releaseState() === 'ready' && release()) {
+                {{ release()!.tag_name }}
+              } @else if (releaseState() === 'ready') {
+                None yet
+              } @else if (releaseState() === 'failed') {
+                —
+              }
+            </div>
+            <div class="snap-label">Latest release</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-lg-8">
+          <div class="card panel h-100 p-4">
+            <h2 class="panel-title mb-3"><i class="bi bi-graph-up-arrow me-2 accent"></i>Commit activity · last year</h2>
+
+            @switch (commitsState()) {
+              @case ('busy') {
+                <app-widget-busy label="Fetching commit stats…" />
+              }
+              @case ('ready') {
+                @if (statsComputing()) {
+                  <div class="soft-note">
+                    <i class="bi bi-info-circle me-1"></i> GitHub is still computing stats for this repository.
+                  </div>
+                } @else {
+                  <div class="chart-box">
+                    <canvas baseChart type="bar" [data]="commitChartData()" [options]="commitOptions"></canvas>
+                  </div>
+                }
+              }
+              @case ('failed') {
+                <app-widget-failed label="Commit activity unavailable." />
+              }
+            }
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card panel h-100 p-4">
+            <h2 class="panel-title mb-3"><i class="bi bi-pie-chart me-2 accent"></i>Languages</h2>
+            @switch (langsState()) {
+              @case ('busy') {
+                <app-widget-busy label="Counting bytes…" />
+              }
+              @case ('ready') {
+                @if (!langs()?.length) {
+                  <div class="soft-note"><i class="bi bi-inbox me-1"></i> No language data.</div>
+                } @else {
+                  <div class="chart-box donut">
+                    <canvas baseChart type="doughnut" [data]="langChartData()" [options]="langOptions"></canvas>
+                  </div>
+                  <ul class="list-unstyled lang-legend mt-3 mb-0">
+                    @for (pair of langs()!; track pair[0]; let i = $index) {
+                      <li class="d-flex align-items-center gap-2 small">
+                        <span class="lang-dot" [style.background]="langColor(pair[0], i)"></span>
+                        <span class="text-secondary-emphasis">{{ pair[0] }}</span>
+                        <span class="ms-auto text-secondary">
+                          {{ ((pair[1] / langLegendTotal) * 100).toFixed(1) }}% · {{ fmtBytes(pair[1]) }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+              @case ('failed') {
+                <app-widget-failed label="Language data unavailable." />
+              }
+            }
+          </div>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="card panel h-100 p-4">
+            <h2 class="panel-title mb-3"><i class="bi bi-trophy me-2 accent"></i>Contributors leaderboard</h2>
+            @switch (contribsState()) {
+              @case ('busy') {
+                <app-widget-busy label="Ranking contributors…" />
+              }
+              @case ('ready') {
+                @if (!contribs()?.length) {
+                  <div class="soft-note"><i class="bi bi-person-x me-1"></i> No contributors recorded.</div>
+                } @else {
+                  <ol class="leaderboard list-unstyled mb-0">
+                    @for (c of contribs()!; track c.login; let rank = $index) {
+                      <li class="d-flex align-items-center gap-3 py-2">
+                        <span class="rank" [class.top-rank]="rank < 3">{{ rank + 1 }}</span>
+                        <img [src]="c.avatar_url" alt="" width="32" height="32" class="rounded-circle" loading="lazy" />
+                        <a class="accent-link text-truncate" [href]="c.html_url" target="_blank" rel="noopener">{{ c.login }}</a>
+                          <div class="ms-auto d-flex align-items-center gap-2 bar-wrap">
+                          <div class="bar" [style.width.%]="(c.contributions / maxContrib()) * 60"></div>
+                          <span class="badge count-badge">{{ c.contributions.toLocaleString('en-US') }}</span>
+                        </div>
+                      </li>
+                    }
+                  </ol>
+                }
+              }
+              @case ('failed') {
+                <app-widget-failed label="Contributor data unavailable." />
+              }
+            }
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="card panel h-100 p-4">
+            <h2 class="panel-title mb-3"><i class="bi bi-card-list me-2 accent"></i>About this Repo</h2>
+            <ul class="meta-list list-unstyled mb-0">
+              <li><span>Created</span><strong>{{ shortDate(r.created_at) }}</strong></li>
+              <li><span>Last push</span><strong [title]="shortDate(r.pushed_at)">{{ compactTimeAgo(r.pushed_at) }}</strong></li>
+              <li><span>Size</span><strong>{{ fmtBytes(r.size * 1024) }}</strong></li>
+              <li><span>Default license name</span><strong>{{ r.license?.name || '—' }}</strong></li>
+              <li><span>Homepage</span>
+                <strong>
+                  @if (r.homepage) {
+                    <a class="accent-link" [href]="r.homepage" target="_blank" rel="noopener">open ↗</a>
+                  } @else {
+                    —
+                  }
+                </strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    }
+  }
+</div>

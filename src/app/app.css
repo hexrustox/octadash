@@ -1,0 +1,24 @@
+.app-navbar {
+  background: rgba(12, 17, 30, 0.8);
+  backdrop-filter: blur(14px);
+}
+
+.brand-glyph { color: #6ea8fe; }
+
+.brand-accent { color: #6ea8fe; }
+
+.token-badge {
+  color: #9ec1ff;
+  background: rgba(110, 168, 254, 0.1);
+  border: 1px solid rgba(110, 168, 254, 0.25);
+  font-weight: 500;
+}
+
+.pat-menu {
+  min-width: 300px;
+  padding: 1rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.85);
+}

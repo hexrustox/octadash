@@ -78,26 +78,9 @@ Every search lives in the URL — refresh, share, revisit. All requests go direc
 
 ### Prerequisites
 
-<details>
-<summary>Local (pnpm + Node)</summary>
-
 - Node.js ≥ 20
 - pnpm 11.22 (`npm i -g pnpm` or via Corepack)
 
-</details>
-
-<details>
-<summary>Nix (recommended for contributors)</summary>
-
-```bash
-nix develop          # enters devShell with Node + pnpm
-# or
-direnv allow         # auto-loads via .envrc
-```
-
-The flake wraps `pnpm` in an `ubuntu:latest` container (`/tmp/octadash/ncap-socket`, port `4200:4200`).
-
-</details>
 
 ### Installation
 

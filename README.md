@@ -35,11 +35,23 @@ Every search lives in the URL — refresh, share, revisit. All requests go direc
 
 ## Screenshots
 
-| Search | Results | Dashboard |
-| --- | --- | --- |
-| ![Search bar with filters](assets/search.png) | ![Search results grid with repo cards](assets/search_result.png) | ![Repository dashboard with charts and stats](assets/dashboard.png) |
+### Search
 
-*Left: hero search with language/stars/license/sort controls. Center: repo cards with infinite scroll. Right: repo dashboard — snapshot, commit chart, languages doughnut, leaderboard.*
+![Search bar with filters](assets/search.png)
+
+Hero search with language, stars, license and sort controls.
+
+### Results
+
+![Search results grid with repo cards](assets/search_result.png)
+
+Repository cards with infinite scroll.
+
+### Dashboard
+
+![Repository dashboard with charts and stats](assets/dashboard.png)
+
+Repository dashboard with snapshot, commit chart, languages doughnut and contributor leaderboard.
 
 ---
 
@@ -225,4 +237,3 @@ assets/
 - [GitHub rate limiting](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)
 - [Angular documentation](https://angular.dev)
 - [Bootstrap 5 docs](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-

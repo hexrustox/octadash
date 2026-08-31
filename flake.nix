@@ -38,6 +38,7 @@
           packages = with pkgs; [
             nodejs-slim
             pnpm
+            cacert
 
             skills
             git

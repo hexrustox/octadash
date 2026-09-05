@@ -11,7 +11,7 @@ _A free window onto GitHub: search millions of open-source projects and get a cl
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat-square&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
 [![Chart.js](https://img.shields.io/badge/Chart.js-4.5-FF6384?style=flat-square&logo=chartdotjs&logoColor=white)](https://www.chartjs.org)
 
-<img src="assets/search_empty.png" alt="octadash home screen: the slogan 'Find the repositories worth your time.' above a search bar with filters" width="90%" />
+<img src="assets/search_empty.png" alt="octadash home screen: the slogan 'Find the repositories worth your time.' above a search bar with filters" />
 
 </div>
 
